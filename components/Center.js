@@ -3,9 +3,14 @@ import { signOut, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { shuffle } from "lodash";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { playlistIdState, playlistState } from "../atoms/playlistAtom";
+import {
+  isLoadingState,
+  playlistIdState,
+  playlistState,
+} from "../atoms/playlistAtom";
 import useSpotify from "../hooks/useSpotify";
 import Songs from "./Songs";
+import ClipLoader from "react-spinners/SyncLoader";
 
 const colours = [
   "from-indigo-500",
@@ -23,6 +28,7 @@ function Center() {
   const [colour, setColour] = useState(null);
   const playlistId = useRecoilValue(playlistIdState);
   const [playlist, setPlaylist] = useRecoilState(playlistState);
+  const [loading, setLoading] = useRecoilState(isLoadingState);
 
   useEffect(() => {
     setColour(shuffle(colours).pop());
@@ -36,7 +42,13 @@ function Center() {
       })
       .catch((err) => console.log(err));
   }, [spotifyApi, playlistId]);
-  console.log(playlist);
+
+  useEffect(() => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+    }, 500);
+  }, []);
 
   return (
     <div className="flex-grow h-screen overflow-y-scroll scrollbar-hide text-white col-span-full">
@@ -55,24 +67,33 @@ function Center() {
         </div>
       </header>
 
-      <section
-        className={`flex items-end space-x-7 bg-gradient-to-b to-black ${colour} h-80 text-white p-8`}
-      >
-        <img
-          className="h-44 w-44 shadow-2xl"
-          src={playlist?.images?.[0]?.url}
-          alt={playlist?.name}
-        />
-        <div>
-          <p>PLAYLIST</p>
-          <h2 className="text-2xl md:text-3xl xl:text-5xl font-bold">
-            {playlist?.name}
-          </h2>
-        </div>
-      </section>
-
       <div>
-        <Songs />
+        {loading ? (
+          <>
+            <div className="flex justify-center items-center w-[100%] h-[100vh]">
+              <ClipLoader color="#FFFFFF" loading={loading} size={70} />
+            </div>
+          </>
+        ) : (
+          <>
+            <section
+              className={`flex items-end space-x-7 bg-gradient-to-b to-black ${colour} h-80 text-white p-12 rounded-sm`}
+            >
+              <img
+                className="h-44 w-44 shadow-2xl rounded-md"
+                src={playlist?.images?.[0]?.url}
+                alt={playlist?.name}
+              />
+              <div>
+                <p>PLAYLIST</p>
+                <h2 className="text-2xl md:text-3xl xl:text-5xl font-bold">
+                  {playlist?.name}
+                </h2>
+              </div>
+            </section>
+            <Songs />
+          </>
+        )}
       </div>
     </div>
   );

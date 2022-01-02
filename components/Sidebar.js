@@ -13,6 +13,10 @@ import { useRecoilState } from "recoil";
 import { playlistIdState } from "../atoms/playlistAtom";
 import useSpotify from "../hooks/useSpotify";
 
+function classNames(...classes) {
+  return classes.filter(Boolean).join(" ");
+}
+
 function Sidebar() {
   const spotifyApi = useSpotify();
   const { data: session, status } = useSession();
@@ -23,12 +27,13 @@ function Sidebar() {
     if (spotifyApi.getAccessToken()) {
       spotifyApi.getUserPlaylists().then((data) => {
         setPlaylists(data.body.items);
+        setPlaylistId(data.body.items[0].id);
       });
     }
   }, [session, spotifyApi]);
 
   return (
-    <div className="text-gray-500 p-5 text-sm lg:text-xs border-r border-gray-900 overflow-y-scroll scrollbar-hide h-screen sm:max-w-[12rem] lg:max-w-[15rem] hidden md:inline-flex">
+    <div className="text-gray-400 p-5 text-sm lg:text-xs border-r border-black overflow-y-scroll scrollbar-hide h-screen sm:max-w-[12rem] lg:max-w-[15rem] hidden md:inline-flex">
       <div className="space-y-4">
         <button className="flex items-center space-x-2 hover:text-white">
           <HomeIcon className="h-5 w-5" />
@@ -65,7 +70,11 @@ function Sidebar() {
           <p
             key={playlist.id}
             onClick={() => setPlaylistId(playlist.id)}
-            className="cursor-pointer hover:text-white"
+            className={classNames(
+              playlist.id === playlistId
+                ? "cursor-pointer hover:text-white text-white"
+                : "cursor-pointer hover:text-white"
+            )}
           >
             {playlist.name}
           </p>

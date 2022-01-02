@@ -14,3 +14,8 @@ export const isShuffleState = atom({
   key: "isShuffleState",
   default: false,
 });
+
+export const isReplayState = atom({
+  key: "isReplayState",
+  default: false,
+});

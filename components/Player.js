@@ -15,6 +15,7 @@ import { useRecoilState } from "recoil";
 import {
   currentTrackIdState,
   isPlayingState,
+  isReplayState,
   isShuffleState,
 } from "../atoms/songAtom";
 import useSongInfo from "../hooks/useSongInfo";
@@ -27,7 +28,8 @@ function Player() {
     useRecoilState(currentTrackIdState);
   const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState);
   const [isShuffle, setIsShuffle] = useRecoilState(isShuffleState);
-  const [volume, setVolume] = useState(50);
+  const [isReplay, setIsReplay] = useRecoilState(isReplayState);
+  const [volume, setVolume] = useState(80);
 
   const songInfo = useSongInfo(currentTrackId);
 
@@ -38,6 +40,8 @@ function Player() {
         spotifyApi.getMyCurrentPlaybackState().then((data) => {
           setIsPlaying(data.body?.is_playing);
           setIsShuffle(data.body?.shuffle_state);
+          if (data.body?.repeat_state !== "context")
+            setIsReplay(data.body?.repeat_state);
         });
       });
     }
@@ -67,6 +71,36 @@ function Player() {
     });
   };
 
+  const handleReplayOnOff = () => {
+    spotifyApi.getMyCurrentPlaybackState().then((data) => {
+      if (data.body?.repeat_state === "track") {
+        spotifyApi.setRepeat("off");
+        setIsReplay(false);
+      } else {
+        spotifyApi.setRepeat("track");
+        setIsReplay(true);
+      }
+    });
+  };
+
+  const handleSkip = () => {
+    spotifyApi.getMyCurrentPlaybackState().then((data) => {
+      if (data.body?.is_playing) {
+        spotifyApi.skipToNext();
+        spotifyApi.play();
+      }
+    });
+  };
+
+  // const handleGoBack = () => {
+  //   spotifyApi.getMyCurrentPlaybackState().then((data) => {
+  //     if (data.body?.is_playing) {
+  //       spotifyApi.skipToPrevious(data);
+  //       spotifyApi.play();
+  //     }
+  //   });
+  // };
+
   useEffect(() => {
     if (spotifyApi.getAccessToken() && !currentTrackId) {
       fetchCurrentSong();
@@ -88,7 +122,7 @@ function Player() {
   }, [volume]);
 
   return (
-    <div className="h-24 bg-gradient-to-b from-red-900 to-black text-white grid grid-cols-3 text-sm md:text-base px-2 md:px-8">
+    <div className="h-24 bg-gradient-to-b from-gray-900 to-black text-white grid grid-cols-3 text-sm md:text-base px-2 md:px-8">
       <div className="flex items-center space-x-4">
         <img
           className="hidden md:inline h-12 w-12"
@@ -126,11 +160,24 @@ function Player() {
             onClick={handlePlayPause}
           />
         )}
-        <FastForwardIcon className="w-5 h-5 cursor-pointer hover:scale-125 transition transform duration-100 ease-out" />
-        <ReplyIcon className="w-5 h-5 cursor-pointer hover:scale-125 transition transform duration-100 ease-out" />
+        <FastForwardIcon
+          onClick={handleSkip}
+          className="w-5 h-5 cursor-pointer hover:scale-125 transition transform duration-100 ease-out"
+        />
+        {isReplay ? (
+          <ReplyIcon
+            onClick={handleReplayOnOff}
+            className="w-5 h-5 cursor-pointer hover:scale-125 transition transform duration-100 ease-out text-[#0cbb2f]"
+          />
+        ) : (
+          <ReplyIcon
+            onClick={handleReplayOnOff}
+            className="w-5 h-5 cursor-pointer hover:scale-125 transition transform duration-100 ease-out"
+          />
+        )}
       </div>
 
-      <div className="flex items-center space-x-3 md:space-x-4 justify-end p-5">
+      <div className="flex items-center space-x-3 md:space-x-4 justify-end p-5 hover:text-[#0cbb2f]">
         <VolumeDownIcon
           className="w-5 h-5 cursor-pointer hover:scale-125 transition transform duration-100 ease-out"
           onClick={() => volume > 0 && setVolume(volume - 10)}
