@@ -4,6 +4,7 @@ import { currentTrackIdState, isPlayingState } from "../atoms/songAtom";
 import useSpotify from "../hooks/useSpotify";
 import { millisToMinutesAndSeconds } from "../lib/time";
 import { MusicNoteIcon } from "@heroicons/react/solid";
+import { playlistIdState } from "../atoms/playlistAtom";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -13,6 +14,7 @@ function Song({ order, track }) {
   const spotifyApi = useSpotify();
   const [currentTrackId, setCurrentTrackId] =
     useRecoilState(currentTrackIdState);
+  const [currentPlaylistId] = useRecoilState(playlistIdState);
   const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState);
 
   const playSong = () => {
@@ -20,7 +22,10 @@ function Song({ order, track }) {
     setIsPlaying(true);
     // if (currentTrackId == track.track.id) return;
     spotifyApi.play({
-      uris: [track.track.uri],
+      context_uri: `spotify:playlist:${currentPlaylistId}`,
+      offset: {
+        uri: track.track.uri,
+      },
     });
   };
 

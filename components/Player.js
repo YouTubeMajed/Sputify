@@ -47,14 +47,38 @@ function Player() {
     }
   };
 
+  const fetchCurrentSongTwo = () => {
+    setTimeout(() => {
+      spotifyApi.getMyCurrentPlayingTrack().then((data) => {
+        setCurrentTrackId(data.body?.item?.id);
+        spotifyApi.getMyCurrentPlaybackState().then((data) => {
+          setIsPlaying(data.body?.is_playing);
+          setIsShuffle(data.body?.shuffle_state);
+          if (data.body?.repeat_state !== "context")
+            setIsReplay(data.body?.repeat_state);
+        });
+      });
+    }, 800);
+  };
+
+  // useEffect(() => {
+  //   setInterval(fetchCurrentSongTwo());
+  // });
+  setInterval(function () {
+    //this code runs every second
+    fetchCurrentSongTwo();
+  }, 1500000);
+
   const handlePlayPause = () => {
     spotifyApi.getMyCurrentPlaybackState().then((data) => {
       if (data.body?.is_playing) {
         spotifyApi.pause();
         setIsPlaying(false);
+        fetchCurrentSongTwo();
       } else {
         spotifyApi.play();
         setIsPlaying(true);
+        fetchCurrentSongTwo();
       }
     });
   };
@@ -64,9 +88,11 @@ function Player() {
       if (data.body?.shuffle_state) {
         spotifyApi.setShuffle("false");
         setIsShuffle(false);
+        fetchCurrentSongTwo();
       } else {
         spotifyApi.setShuffle("true");
         setIsShuffle(true);
+        fetchCurrentSongTwo();
       }
     });
   };
@@ -76,9 +102,11 @@ function Player() {
       if (data.body?.repeat_state === "track") {
         spotifyApi.setRepeat("off");
         setIsReplay(false);
+        fetchCurrentSongTwo();
       } else {
         spotifyApi.setRepeat("track");
         setIsReplay(true);
+        fetchCurrentSongTwo();
       }
     });
   };
@@ -87,19 +115,19 @@ function Player() {
     spotifyApi.getMyCurrentPlaybackState().then((data) => {
       if (data.body?.is_playing) {
         spotifyApi.skipToNext();
-        spotifyApi.play();
+        fetchCurrentSongTwo(currentTrackId, spotifyApi, session);
       }
     });
   };
 
-  // const handleGoBack = () => {
-  //   spotifyApi.getMyCurrentPlaybackState().then((data) => {
-  //     if (data.body?.is_playing) {
-  //       spotifyApi.skipToPrevious(data);
-  //       spotifyApi.play();
-  //     }
-  //   });
-  // };
+  const handleGoBack = () => {
+    spotifyApi.getMyCurrentPlaybackState().then((data) => {
+      if (data.body?.is_playing) {
+        spotifyApi.skipToPrevious();
+        fetchCurrentSongTwo(currentTrackId, spotifyApi, session);
+      }
+    });
+  };
 
   useEffect(() => {
     if (spotifyApi.getAccessToken() && !currentTrackId) {
@@ -148,7 +176,10 @@ function Player() {
             className="w-5 h-5 cursor-pointer hover:scale-125 transition transform duration-100 ease-out"
           />
         )}
-        <RewindIcon className="w-5 h-5 cursor-pointer hover:scale-125 transition transform duration-100 ease-out" />
+        <RewindIcon
+          onClick={handleGoBack}
+          className="w-5 h-5 cursor-pointer hover:scale-125 transition transform duration-100 ease-out"
+        />
         {isPlaying ? (
           <PauseIcon
             className="w-10 h-10 cursor-pointer hover:scale-125 transition transform duration-100 ease-out text-[#ffffff]"
