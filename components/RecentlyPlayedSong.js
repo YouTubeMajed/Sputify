@@ -40,10 +40,9 @@ function RecentlyPlayedSong({ order, track }) {
         {track.track.id == currentTrackId ? (
           <>
             <MusicNoteIcon className="text-[#0cbb2f] w-5 h-5 cursor-pointer hover:scale-125 transition transform duration-100 ease-out" />
-            <p className="font-extrabold text-white">{order + 1}</p>
           </>
         ) : (
-          <p className="font-extrabold text-white">{order + 1}</p>
+          <p></p>
         )}
         <img
           className="h-10 w-10 rounded-xl"

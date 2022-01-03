@@ -12,6 +12,7 @@ import { debounce } from "lodash";
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
+import { recentlyPlayedTracks } from "../atoms/homePageAtom";
 import {
   currentTrackIdState,
   isPlayingState,
@@ -29,6 +30,8 @@ function Player() {
   const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState);
   const [isShuffle, setIsShuffle] = useRecoilState(isShuffleState);
   const [isReplay, setIsReplay] = useRecoilState(isReplayState);
+  const [isRecentlyPlayedTrack, setRecentlyPlayedTrack] =
+    useRecoilState(recentlyPlayedTracks);
   const [volume, setVolume] = useState(50);
 
   const songInfo = useSongInfo(currentTrackId);
@@ -40,6 +43,9 @@ function Player() {
         spotifyApi.getMyCurrentPlaybackState().then((data) => {
           setIsPlaying(data.body?.is_playing);
           setIsShuffle(data.body?.shuffle_state);
+          spotifyApi.getMyRecentlyPlayedTracks({ limit: 4 }).then((data) => {
+            setRecentlyPlayedTrack(data.body);
+          });
           if (data.body?.repeat_state !== "context")
             setIsReplay(data.body?.repeat_state);
         });
