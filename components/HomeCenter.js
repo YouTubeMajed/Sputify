@@ -27,14 +27,14 @@ function HomeCenter() {
     setColour(shuffle(colours).pop());
   }, []);
 
-  useEffect(() => {
-    spotifyApi
-      .getMyRecentlyPlayedTracks()
-      .then((data) => {
-        console.log(data.body);
-      })
-      .catch((err) => console.log(err));
-  }, [spotifyApi]);
+  // useEffect(() => {
+  //   spotifyApi
+  //     .getMyRecentlyPlayedTracks()
+  //     .then((data) => {
+  //       console.log(data.body);
+  //     })
+  //     .catch((err) => console.log(err));
+  // }, [spotifyApi]);
 
   useEffect(() => {
     setLoading(true);

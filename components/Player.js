@@ -38,32 +38,38 @@ function Player() {
 
   const fetchCurrentSong = () => {
     if (!songInfo) {
-      spotifyApi.getMyCurrentPlayingTrack().then((data) => {
-        setCurrentTrackId(data.body?.item?.id);
-        spotifyApi.getMyCurrentPlaybackState().then((data) => {
-          setIsPlaying(data.body?.is_playing);
-          setIsShuffle(data.body?.shuffle_state);
-          spotifyApi.getMyRecentlyPlayedTracks({ limit: 4 }).then((data) => {
-            setRecentlyPlayedTrack(data.body);
+      spotifyApi
+        .getMyCurrentPlayingTrack()
+        .then((data) => {
+          setCurrentTrackId(data.body?.item?.id);
+          spotifyApi.getMyCurrentPlaybackState().then((data) => {
+            setIsPlaying(data.body?.is_playing);
+            setIsShuffle(data.body?.shuffle_state);
+            spotifyApi.getMyRecentlyPlayedTracks({ limit: 4 }).then((data) => {
+              setRecentlyPlayedTrack(data.body);
+            });
+            if (data.body?.repeat_state !== "context")
+              setIsReplay(data.body?.repeat_state);
           });
-          if (data.body?.repeat_state !== "context")
-            setIsReplay(data.body?.repeat_state);
-        });
-      });
+        })
+        .catch((err) => console.log(err));
     }
   };
 
   const fetchCurrentSongTwo = () => {
     setTimeout(() => {
-      spotifyApi.getMyCurrentPlayingTrack().then((data) => {
-        setCurrentTrackId(data.body?.item?.id);
-        spotifyApi.getMyCurrentPlaybackState().then((data) => {
-          setIsPlaying(data.body?.is_playing);
-          setIsShuffle(data.body?.shuffle_state);
-          if (data.body?.repeat_state !== "context")
-            setIsReplay(data.body?.repeat_state);
-        });
-      });
+      spotifyApi
+        .getMyCurrentPlayingTrack()
+        .then((data) => {
+          setCurrentTrackId(data.body?.item?.id);
+          spotifyApi.getMyCurrentPlaybackState().then((data) => {
+            setIsPlaying(data.body?.is_playing);
+            setIsShuffle(data.body?.shuffle_state);
+            if (data.body?.repeat_state !== "context")
+              setIsReplay(data.body?.repeat_state);
+          });
+        })
+        .catch((err) => console.log(err));
     }, 800);
   };
 
@@ -76,63 +82,83 @@ function Player() {
   }, 1500000);
 
   const handlePlayPause = () => {
-    spotifyApi.getMyCurrentPlaybackState().then((data) => {
-      if (data.body?.is_playing) {
-        spotifyApi.pause();
-        setIsPlaying(false);
-        fetchCurrentSongTwo();
-      } else {
-        spotifyApi.play();
-        setIsPlaying(true);
-        fetchCurrentSongTwo();
-      }
-    });
+    spotifyApi
+      .getMyCurrentPlaybackState()
+      .then((data) => {
+        if (!data.body?.device) return console.log("No Device");
+        if (data.body?.is_playing) {
+          spotifyApi.pause();
+          setIsPlaying(false);
+          fetchCurrentSongTwo();
+        } else {
+          spotifyApi.play();
+          setIsPlaying(true);
+          fetchCurrentSongTwo();
+        }
+      })
+      .catch((err) => console.log(err));
   };
 
   const handleShuffleOnOff = () => {
-    spotifyApi.getMyCurrentPlaybackState().then((data) => {
-      if (data.body?.shuffle_state) {
-        spotifyApi.setShuffle("false");
-        setIsShuffle(false);
-        fetchCurrentSongTwo();
-      } else {
-        spotifyApi.setShuffle("true");
-        setIsShuffle(true);
-        fetchCurrentSongTwo();
-      }
-    });
+    spotifyApi
+      .getMyCurrentPlaybackState()
+      .then((data) => {
+        if (!data.body?.device) return console.log("No Device");
+        if (data.body?.shuffle_state) {
+          spotifyApi.setShuffle("false");
+          setIsShuffle(false);
+          fetchCurrentSongTwo();
+        } else {
+          spotifyApi.setShuffle("true");
+          setIsShuffle(true);
+          fetchCurrentSongTwo();
+        }
+      })
+      .catch((err) => console.log(err));
   };
 
   const handleReplayOnOff = () => {
-    spotifyApi.getMyCurrentPlaybackState().then((data) => {
-      if (data.body?.repeat_state === "track") {
-        spotifyApi.setRepeat("off");
-        setIsReplay(false);
-        fetchCurrentSongTwo();
-      } else {
-        spotifyApi.setRepeat("track");
-        setIsReplay(true);
-        fetchCurrentSongTwo();
-      }
-    });
+    spotifyApi
+      .getMyCurrentPlaybackState()
+      .then((data) => {
+        if (!data.body?.device) return console.log("No Device");
+        if (data.body?.repeat_state === "track") {
+          spotifyApi.setRepeat("off");
+          setIsReplay(false);
+          fetchCurrentSongTwo();
+        } else {
+          spotifyApi.setRepeat("track");
+          setIsReplay(true);
+          fetchCurrentSongTwo();
+        }
+      })
+      .catch((err) => console.log(err));
   };
 
   const handleSkip = () => {
-    spotifyApi.getMyCurrentPlaybackState().then((data) => {
-      if (data.body?.is_playing) {
-        spotifyApi.skipToNext();
-        fetchCurrentSongTwo(currentTrackId, spotifyApi, session);
-      }
-    });
+    spotifyApi
+      .getMyCurrentPlaybackState()
+      .then((data) => {
+        if (!data.body?.device) return console.log("No Device");
+        if (data.body?.is_playing) {
+          spotifyApi.skipToNext();
+          fetchCurrentSongTwo(currentTrackId, spotifyApi, session);
+        }
+      })
+      .catch((err) => console.log(err));
   };
 
   const handleGoBack = () => {
-    spotifyApi.getMyCurrentPlaybackState().then((data) => {
-      if (data.body?.is_playing) {
-        spotifyApi.skipToPrevious();
-        fetchCurrentSongTwo(currentTrackId, spotifyApi, session);
-      }
-    });
+    spotifyApi
+      .getMyCurrentPlaybackState()
+      .then((data) => {
+        if (!data.body?.device) return console.log("No Device");
+        if (data.body?.is_playing) {
+          spotifyApi.skipToPrevious();
+          fetchCurrentSongTwo(currentTrackId, spotifyApi, session);
+        }
+      })
+      .catch((err) => console.log(err));
   };
 
   useEffect(() => {
@@ -145,6 +171,7 @@ function Player() {
   const debouncedAdjustVolume = useCallback(
     debounce((volume) => {
       spotifyApi.setVolume(volume).catch((err) => {});
+      fetchCurrentSongTwo();
     }, 100),
     []
   );

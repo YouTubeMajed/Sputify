@@ -29,13 +29,19 @@ function Sidebar() {
 
   useEffect(() => {
     if (spotifyApi.getAccessToken()) {
-      spotifyApi.getUserPlaylists().then((data) => {
-        setPlaylists(data.body.items);
-        if (playlistId === null) setPlaylistId(data.body.items[0].id);
-      });
-      spotifyApi.getMyRecentlyPlayedTracks({ limit: 4 }).then((data) => {
-        setRecentlyPlayedTrack(data.body);
-      });
+      spotifyApi
+        .getUserPlaylists()
+        .then((data) => {
+          setPlaylists(data.body.items);
+          if (playlistId === null) setPlaylistId(data.body.items[0].id);
+        })
+        .catch((err) => console.log(err));
+      spotifyApi
+        .getMyRecentlyPlayedTracks({ limit: 4 })
+        .then((data) => {
+          setRecentlyPlayedTrack(data.body);
+        })
+        .catch((err) => console.log(err));
     }
   }, [session, spotifyApi]);
 
