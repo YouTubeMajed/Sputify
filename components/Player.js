@@ -107,7 +107,6 @@ function Player() {
   };
 
   //
-
   const handleShuffleOnOff = () => {
     spotifyApi
       .getMyCurrentPlaybackState()
