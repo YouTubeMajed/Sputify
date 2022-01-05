@@ -13,7 +13,7 @@ import { useRecoilState } from "recoil";
 import { playlistIdState } from "../atoms/playlistAtom";
 import useSpotify from "../hooks/useSpotify";
 import Link from "next/link";
-import { recentlyPlayedTracks } from "../atoms/homePageAtom";
+import { recentlyPlayedTracks, topTracksState } from "../atoms/homePageAtom";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -25,6 +25,7 @@ function Sidebar() {
   const [playlists, setPlaylists] = useState([]);
   const [recentlyPlayedTrack, setRecentlyPlayedTrack] =
     useRecoilState(recentlyPlayedTracks);
+  const [topTracks, setTopTracks] = useRecoilState(topTracksState);
   const [playlistId, setPlaylistId] = useRecoilState(playlistIdState);
 
   useEffect(() => {
@@ -40,6 +41,12 @@ function Sidebar() {
         .getMyRecentlyPlayedTracks({ limit: 4 })
         .then((data) => {
           setRecentlyPlayedTrack(data.body);
+        })
+        .catch((err) => console.log(err));
+      spotifyApi
+        .getMyTopTracks({ time_range: "medium_term", limit: 4 })
+        .then((data) => {
+          setTopTracks(data.body);
         })
         .catch((err) => console.log(err));
     }

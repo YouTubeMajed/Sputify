@@ -7,6 +7,7 @@ import useSpotify from "../hooks/useSpotify";
 import { shuffle } from "lodash";
 import ClipLoader from "react-spinners/SyncLoader";
 import RecentlyPlayedSongs from "./RecentlyPlayedSongs";
+import TopTracks from "./TopTracks";
 
 function HomeCenter() {
   const colours = [
@@ -80,6 +81,10 @@ function HomeCenter() {
               Recently Played
             </h2>
             <RecentlyPlayedSongs />
+            <h2 className="flex font-bold justify-center items-center">
+              Top Tracks
+            </h2>
+            <TopTracks />
           </>
         )}
       </div>
